@@ -3,8 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .models import Profile
 from .forms import UserRegistrationForm, UserEditForm, ProfileEditForm
+import logging
 from blog.models import UserPost
 
+
+logger = logging.getLogger(__name__)
 
 ''' Представление подписки на пользователя '''
 @login_required
@@ -16,6 +19,7 @@ def subscription(request):
         profile.subscribers.add(request.user)
     profile.save()
     data = {'sub': profile.subscribers.count()}
+    logger.info(('Подписка', data))
     return JsonResponse(data)
 
 
@@ -35,6 +39,7 @@ def edit(request):
     else:
         user_form = UserEditForm(instance=request.user)
         profile_form = ProfileEditForm(instance=request.user.profile)
+    logger.info(('Редактирование', user_form, profile_form))
     return render(request, 'account/edit.html', {'user_form': user_form,
                                                  'profile_form': profile_form})
 
@@ -52,6 +57,7 @@ def news(request):
             if posts.user.username in users.user.username:
                 post_subscrib.append(posts)
                 post_all.remove(posts)
+    logger.info(('Новости', request.user.username, post_subscrib, post_all))
     return render(request, 'account/news.html', {'section': 'news', 'post_all': post_all, 'post_subscrib': post_subscrib})
 
 ''' Представление формы регистрации '''
@@ -67,5 +73,6 @@ def register(request):
             return render(request, 'account/register_done.html', {'new_user': new_user})
     else:
         user_form = UserRegistrationForm()
+    logger.info(('Регистрация', user_form))
     return render(request, 'account/register.html', {'user_form': user_form})
 

@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-8hgwnc7vqbfo7a3_-eq0z(y@tkd*7c7ko5o4m%)f0w%x!-r5kd
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+DJANGO_LOG_LEVEL = DEBUG
 ALLOWED_HOSTS = []
 
 AUTHENTICATION_BACKENDS = [
@@ -106,7 +106,38 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose':{
+            'format': '{levelname} {asctime} {module} {process:d} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'general.log',
+            'formatter': 'verbose',
 
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+
+}
 
 
 # Internationalization
