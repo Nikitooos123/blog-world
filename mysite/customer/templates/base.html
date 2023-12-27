@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}+++{% endblock %}</title>
+    <link href="{% static 'css/base.css' %}" rel="stylesheet">
+</head>
+<script src="https://unpkg.com/@vkid/sdk@latest/dist-sdk/umd/index.js"></script>
+<body>
+    <div id="header">
+        <span class="logo"><a href="{% url 'customer:news' %}">Мир блогов</a></span>
+        {% if request.user.is_authenticated %}
+        <ul class="menu">
+            <li {% if section == "profile" %}class="selected"{% endif %}>
+                <a href="{% url 'blog:profiles' request.user.id %}">Профиль</a></li>
+            <li {% if section == "edit" %}class="selected"{% endif %}>
+                <a href="{% url 'customer:edit' %}">Редактировать профиль</a></li>
+        </ul>
+        {% endif %}
+        <span class="user">
+            {% if request.user.is_authenticated %}
+                {{ request.user.username|default:request.user.username }}
+                <a href="{% url 'customer:logout' %}">Выход</a>
+            {% else %}
+                <a href="{% url 'customer:login' %}">Вход</a>
+            {% endif %}
+        </span>
+    </div>
+    <div id="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>

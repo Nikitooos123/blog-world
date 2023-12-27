@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+
+{% block title %}Мой профиль{% endblock %}
+
+{% block content %}
+    <div id="profle-list">
+        {% if profiles.photo %}
+            <img src="{{ profiles.photo.url }}" id="avatar">
+        {% endif %}
+        <h2 style="text-align: center;">{{ user.username }}</h2>
+        <h3 style="text-align: center;">Родился {{ profiles.data_of_brith }}</h3>
+        <h3  style="text-align: center;">Подписчиков : <span id="{{ profiles.user.id }}">{{ profiles.subscribers.count }}</span></h3>
+        <h3 style="text-align: center;">Подписки: {{ profiles.user.subscriptions.count }}</h3>
+        <form method="post" action="{% url 'customer:subscription' %}">
+            {% csrf_token %}
+            <button class="subscript" type="submit" data-post-id="{{ profiles.user.id }}">Подписаться</button>
+        </form>
+    </div>
+    <div class="table-sub">
+        <h2 class="table-title">Подписчики:</h2>
+        {% for subscriber in profiles.subscribers.all %}
+        <h3>
+            <a style="margin-left: 7px;" href="{% url 'blog:profiles' subscriber.id %}">{{ subscriber }}</a>
+        </h3>
+        {% endfor %}
+    </div>
+    <div class="table-subs">
+        <h2 class="table-title">Подписки:</h2>
+        {% for subscriber in profiles.user.subscriptions.all %}
+        <h3>
+            <a style="margin-left: 7px;" href="{% url 'blog:profiles' subscriber.user.id %}">{{ subscriber.user }}</a>
+        </h3>
+        {% endfor %}
+    </div>
+    {% if request.user.username in user.username %}
+        <form class="submit-form" method="post" action="{% url 'blog:post_complete' %}">
+            {{ form.title }}
+            {{ form.body }}
+            {{ form.image }}
+            {% csrf_token %}
+            <p><input style="margin-left: 4%;" type="submit" value="Отправить"></p>
+        </form>
+    {% endif %}
+    <div>
+        {% for post in posts %}
+            <div class="div-post">
+                <h1><p class="username-post">{{ user.username }}</p><p class="title-post"><a href="{% url 'blog:post_detail' post.id %}">{{ post.title }}</a></p></h1>
+                {% if post.image %}
+                    <img class="img-post" src="{{ post.image.url }}">
+                {% endif %}
+                <h2 class="body-post">{{ post.body| truncatewords:15 }}</h2>
+                <div>
+                    <form action="{% url 'blog:likes' %}" method="post">
+                        {% csrf_token %}
+                        <p class="likes-post"><button class="like" type="submit" name="pk" data-post-id="{{ post.id }}">Нравится</button> -
+                            <span id="{{ post.id }}">{{ post.likes.count }}</span></p>
+
+                    </form>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.like').click(function (event) {
+                event.preventDefault();
+                let postId = this.getAttribute('data-post-id');
+                $.ajax({
+                    url: '/blog/like/',
+                    type: 'POST',
+                    data: {'id': postId, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                    dataType: 'json',
+                    success: function(response) {
+                        $('#' + postId).html(response['likes_count']);
+                        console.log('Запрос выполнен успешно');
+                        console.log(response['likes_count']);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ошибка запроса');
+                        console.error(error);
+                    }
+                });
+            });
+        });
+        $(document).ready(function () {
+            $('.subscript').click(function (event) {
+                event.preventDefault();
+                let postId = this.getAttribute('data-post-id');
+                $.ajax({
+                    url: '/customer/subscription/',
+                    type: 'POST',
+                    data: {'id': postId, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                    dataType: 'json',
+                    success: function(response) {
+                        $('#' + postId).html(response['sub']);
+                        console.log('Запрос выполнен успешно');
+                        console.log(response['sub']);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ошибка запроса');
+                        console.error(error);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

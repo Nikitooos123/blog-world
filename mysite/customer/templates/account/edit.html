@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Редактирования профиля{% endblock %}
+
+{% block content %}
+  <h1>Данные вашего профиля</h1>
+  <p>Напишите о себе то, что хотели-бы расказать вы другим</p>
+  <form method="post" enctype="multipart/form-data">
+    {{ user_form.as_p }}
+    {{ profile_form.as_p }}
+    {% csrf_token %}
+    <p><input type="submit" value="Сохранить изменения"></p>
+  </form>
+{% endblock %}

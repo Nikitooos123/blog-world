@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Вы не авторезированны{% endblock %}
+
+{% block content %}
+    <h1>Войти</h1>
+    {% if form.errors %}
+        <p>
+            Ваше имя пользователя или пароль не совпадают :(
+        </p>
+    {% else %}
+        <p>Пожалуйста введите имя пользователя и свой пароль</p>
+    {% endif %}
+    <div class="login-form">
+        <form action="{% url 'customer:login' %}" method="post">
+            {{ form.as_p }}
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <p><input type="submit" value="Войти"></p>
+            <p>Первый раз на нашем сайте? <a href="{% url 'customer:register' %}">Зарегестрироваться</a></p>
+            <p>Забыли пароль?<a href="{% url 'customer:password_reset' %}">Сброить пароль</a></p>
+        </form>
+    </div>
+{% endblock %}

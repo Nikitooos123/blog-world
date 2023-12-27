@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Представление поста{% endblock %}
+
+{% block content %}
+    <div class="detail-post">
+        <h1>{{ post.title }}
+            <p class="time-detail">{{ post.created }}</p></h1>
+        <h2>{{ post.body }}</h2>
+        {% if post.image %}
+            <img class="img-post" src="{{ post.image.url }}">
+        {% endif %}
+    </div>
+    <div class="table-likes">
+        <h2 class="table-title">Список лайкнувших:</h2>
+        {% for likes in post.likes.all %}
+        <h3>
+            <a href="{% url 'blog:profiles' likes.id %}">{{ likes }}</a>
+        </h3>
+        {% endfor %}
+    </div>
+    <div class="detail-post">
+        <h2>Коментарии:{{ comment.objects.count }}</h2>
+        <form method="post" action="{% url 'blog:post_detail' post.id %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <p><input type="submit" value="Отправить"></p>
+        </form>
+    </div>
+    <div class="comment-post">
+        {% for comments in comment %}
+            {% if comments.user.profile.photo.url %}
+                <img class="avatar-comment" src="{{ comments.user.profile.photo.url }}">
+            {% endif %}
+            <h2 class="name-comment">{{ comments.user.username }}</h2>
+            <h1 class="body-comment">{{ comments.body }}</h1>
+        {% endfor %}
+    </div>
+{% endblock %}

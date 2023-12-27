@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}Выход{% endblock %}
+
+{% block content %}
+    <h1>Выход из системы</h1>
+    <p>
+        Если вы захотите заново вернуться на сайт.
+        Перейдите по этой ссылку -> <a href="{% url 'customer:login' %}">Вернуться обратно</a>
+    </p>
+{% endblock %}

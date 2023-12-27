@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Новости{% endblock %}
+
+{% block content %}
+    <h1>Новости</h1>
+    {% for posts in post_subscrib %}
+        <div class="div-post">
+            <h1>
+                <p class="username-post"><a href="{% url 'blog:profiles' posts.user.id %}">{{ posts.user }}</a></p>
+                <p class="time-post">{{ posts.created }}</p>
+                <p class="title-post"><a href="{% url 'blog:post_detail' posts.id %}">{{ posts.title }}</a></p>
+
+            </h1>
+            {% if posts.image %}
+            <img class="img-post" src="{{ posts.image.url }}">
+            {% endif %}
+            <h2 class="body-post">{{ posts.body| truncatewords:15 }}</h2>
+            <div>
+                <form action="{% url 'blog:likes' %}" method="post">
+                    {% csrf_token %}
+                    <p class="likes-post"><button class="like" type="submit" name="pk" data-post-id="{{ posts.id }}">Нравится</button> -
+                        <span id="{{ posts.id }}">{{ posts.likes.count }}</span></p>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+    {% for posts in post_all %}
+        <div class="div-post">
+            <h1>
+                <p class="username-post"><a href="{% url 'blog:profiles' posts.user.id %}">{{ posts.user }}</a></p>
+                <p class="time-post">{{ posts.created }}</p>
+                <p class="title-post"><a href="{% url 'blog:post_detail' posts.id %}">{{ posts.title }}</a></p>
+
+            </h1>
+            {% if posts.image %}
+            <img class="img-post" src="{{ posts.image.url }}">
+            {% endif %}
+            <h2 class="body-post">{{ posts.body| truncatewords:15 }}</h2>
+            <div>
+                <form action="{% url 'blog:likes' %}" method="post">
+                    {% csrf_token %}
+                    <p class="likes-post"><button class="like" type="submit" name="pk" data-post-id="{{ posts.id }}">Нравится</button> -
+                        <span id="{{ posts.id }}">{{ posts.likes.count }}</span></p>
+                </form>
+            </div>
+        </div>
+    {% endfor %}
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.like').click(function (event) {
+                event.preventDefault();
+                let postId = this.getAttribute('data-post-id');
+                $.ajax({
+                    url: '/blog/like/',
+                    type: 'POST',
+                    data: {'id': postId, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                    dataType: 'json',
+                    success: function(response) {
+                        $('#' + postId).html(response['likes_count']);
+                        console.log('Запрос выполнен успешно');
+                        console.log(response['likes_count']);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ошибка запроса');
+                        console.error(error);
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
