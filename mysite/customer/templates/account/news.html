@@ -53,7 +53,7 @@
                 event.preventDefault();
                 let postId = this.getAttribute('data-post-id');
                 $.ajax({
-                    url: '/blog/like/',
+                    url: '/like/',
                     type: 'POST',
                     data: {'id': postId, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
                     dataType: 'json',

@@ -34,7 +34,7 @@
         {% endfor %}
     </div>
     {% if request.user.username in user.username %}
-        <form class="submit-form" method="post" action="{% url 'blog:post_complete' %}">
+        <form class="submit-form" method="post" action="{% url 'blog:profiles' user.id %}">
             {{ form.title }}
             {{ form.body }}
             {{ form.image }}
@@ -68,7 +68,7 @@
                 event.preventDefault();
                 let postId = this.getAttribute('data-post-id');
                 $.ajax({
-                    url: '/blog/like/',
+                    url: '/like/',
                     type: 'POST',
                     data: {'id': postId, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
                     dataType: 'json',
@@ -89,7 +89,7 @@
                 event.preventDefault();
                 let postId = this.getAttribute('data-post-id');
                 $.ajax({
-                    url: '/customer/subscription/',
+                    url: '/subscription/',
                     type: 'POST',
                     data: {'id': postId, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
                     dataType: 'json',
