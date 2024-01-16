@@ -4,27 +4,6 @@
 
 {% block content %}
     <h1>Новости</h1>
-    {% for posts in post_subscrib %}
-        <div class="div-post">
-            <h1>
-                <p class="username-post"><a href="{% url 'blog:profiles' posts.user.id %}">{{ posts.user }}</a></p>
-                <p class="time-post">{{ posts.created }}</p>
-                <p class="title-post"><a href="{% url 'blog:post_detail' posts.id %}">{{ posts.title }}</a></p>
-
-            </h1>
-            {% if posts.image %}
-            <img class="img-post" src="{{ posts.image.url }}">
-            {% endif %}
-            <h2 class="body-post">{{ posts.body| truncatewords:15 }}</h2>
-            <div>
-                <form action="{% url 'blog:likes' %}" method="post">
-                    {% csrf_token %}
-                    <p class="likes-post"><button class="like" type="submit" name="pk" data-post-id="{{ posts.id }}">Нравится</button> -
-                        <span id="{{ posts.id }}">{{ posts.likes.count }}</span></p>
-                </form>
-            </div>
-        </div>
-    {% endfor %}
     {% for posts in post_all %}
         <div class="div-post">
             <h1>
