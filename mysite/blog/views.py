@@ -6,9 +6,11 @@ from .models import UserPost, CommentPost
 from django.views.decorators.http import require_POST
 from django.contrib.auth.models import User
 import logging
+from django.core.cache import cache
 from customer.models import Profile
 
 logger = logging.getLogger(__name__)
+
 
 ''' Представление комментариев '''
 
@@ -25,7 +27,7 @@ def comments(request, post_id):
     return render(request, 'blog/comment_post.html', {'post': post, 'form': form, 'comment': comment})
 
 
-''' обработчик лайков поста '''
+''' Обработчик лайков поста '''
 
 def like(request):
     post = get_object_or_404(UserPost, pk=request.POST.get('id'))
@@ -45,8 +47,17 @@ def like(request):
 
 @login_required
 def post_detail(request, id):
-    post = get_object_or_404(UserPost, id=id)
-    comment = CommentPost.objects.filter(post=id)
+
+    post_cache = cache.get(f'post{id}')
+    if post_cache:
+        post = post_cache
+        comment = CommentPost.objects.filter(post=id)
+        logger.info(comment)
+    else:
+        post = get_object_or_404(UserPost, id=id)
+        comment = CommentPost.objects.filter(post=id)
+        logger.info(comment)
+        cache.set(f'post{id}', post, 100)
     if request.method == 'POST':
         form = CommentForm(request.POST)
         if form.is_valid():
@@ -57,7 +68,7 @@ def post_detail(request, id):
             comment_form.save()
     else:
         form = CommentForm(request.GET)
-    logger.info(('Детальная страница поста', post, form, comment))
+    # logger.info(('Детальная страница поста', post, form, comment))
     return render(request, 'blog/post_detail.html', {'post': post, 'form': form, 'comment': comment})
 
 
@@ -82,18 +93,3 @@ def profiles(request, id):
     return render(request, 'blog/profiles.html', {'user': users, 'profiles': profiles, 'form': form, 'posts': posts})
 
 
-''' Представление поста '''
-
-# def post_complete(request):
-#     if request.method == 'POST':
-#         form = PostForm(request.POST)
-#         if form.is_valid():
-#             cd = form.cleaned_data
-#             form_post = form.save(commit=False)
-#             form_post.user = request.user
-#             form_post.save()
-#             return redirect('blog:profiles')
-#     else:
-#         form = PostForm(request.GET)
-#     logger.info('не должно работать!!!')
-#     return render(request, 'blog/post_complete.html', {'form': form})
