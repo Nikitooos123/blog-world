@@ -4,12 +4,13 @@ from django.http import JsonResponse
 from .models import Profile
 from .forms import UserRegistrationForm, UserEditForm, ProfileEditForm
 import logging
+from django.core.cache import cache
 from blog.models import UserPost
 
 
 logger = logging.getLogger(__name__)
 
-''' Представление подписки на пользователя '''
+''' Обработчик подписки на пользователя '''
 @login_required
 def subscription(request):
     profile = get_object_or_404(Profile, user=request.POST.get('id'))
@@ -47,18 +48,20 @@ def edit(request):
 
 @login_required
 def news(request):
-    post = UserPost.objects.all()
-    subscrib = request.user.subscriptions.all()
-    post_subscrib = []
-    post_all = []
-    for posts in post:
-        post_all.append(posts)
-        for users in subscrib:
-            if posts.user.username in users.user.username:
-                post_subscrib.append(posts)
-                post_all.remove(posts)
-    logger.info(('Новости', request.user.username, post_subscrib, post_all))
-    return render(request, 'account/news.html', {'section': 'news', 'post_all': post_all, 'post_subscrib': post_subscrib})
+    post_cache = cache.get(f'news{request.user}')
+    if post_cache:
+        post = post_cache
+        logger.info(('взято из кэша', post_cache))
+    else:
+        post = list(UserPost.objects.all())
+        subscrib = request.user.subscriptions.all()
+        for posts in post:
+            if posts.user.profile in subscrib:
+                post.remove(posts)
+                post.insert(0, posts)
+        post_cache = cache.set(f'news{request.user}', post, 100)
+        logger.info('загружено в кэш')
+    return render(request, 'account/news.html', {'section': 'news', 'post_all': post})
 
 ''' Представление формы регистрации '''
 
