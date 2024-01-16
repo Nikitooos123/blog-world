@@ -9,7 +9,7 @@ from django.utils.text import slugify
 class UserPost(models.Model):
     title = models.CharField(max_length=250)
     slug = slugify(title)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='posts', on_delete=models.CASCADE)
     body = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='post/%Y/%m/%d/', blank=True, null=True)
@@ -42,4 +42,4 @@ class CommentPost(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.post}{self.user}'
+        return f'{self.post} {self.user}'
