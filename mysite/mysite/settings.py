@@ -35,8 +35,9 @@ CACHES = {
 }
 
 AUTHENTICATION_BACKENDS = [
+    'social_core.backends.vk.VKOAuth2',
     'django.contrib.auth.backends.ModelBackend',
-    'customer.authentication.AuthUniversallyBackend'
+    'customer.authentication.AuthUniversallyBackend',
 ]
 # Application definition
 
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -75,6 +77,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'social_django.context_processors.backends',
             ],
         },
     },
@@ -160,6 +163,14 @@ LOGGING = {
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
+
+SOCIAL_AUTH_VK_OAUTH2_KEY = '51804513'
+SOCIAL_AUTH_VK_OAUTH2_SECRET = 'bKszjQb1frVHSFpGr28P'
+SOCIAL_AUTH_VK_OAUTH2_SCOPE = ['email']
+SOCIAL_AUTH_VK_OAUTH2_REDIRECT_URI = 'https://mysite.com:8000/'
+# SOCIAL_AUTH_VK_APP_USER_MODE = 1
+# 'bKszjQb1frVHSFpGr28P'
+# '02cc425802cc425802cc4258c401da3b39002cc02cc425867abc263469e38b3a6d74fde'
 
 LANGUAGE_CODE = 'Ru-ru'
 

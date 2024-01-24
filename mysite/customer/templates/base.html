@@ -20,7 +20,10 @@
         <span class="user">
             {% if request.user.is_authenticated %}
                 {{ request.user.username|default:request.user.username }}
-                <a href="{% url 'customer:logout' %}">Выход</a>
+                <form action="{% url 'customer:logout' %}" method="POST">
+                    {% csrf_token %}
+                    <a type="submit">Выход</a>
+                </form>
             {% else %}
                 <a href="{% url 'customer:login' %}">Вход</a>
             {% endif %}

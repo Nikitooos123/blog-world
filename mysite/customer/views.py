@@ -7,7 +7,6 @@ import logging
 from django.core.cache import cache
 from blog.models import UserPost
 
-
 logger = logging.getLogger(__name__)
 
 ''' Обработчик подписки на пользователя '''

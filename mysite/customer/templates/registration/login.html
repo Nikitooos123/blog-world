@@ -20,5 +20,14 @@
             <p>Первый раз на нашем сайте? <a href="{% url 'customer:register' %}">Зарегестрироваться</a></p>
             <p>Забыли пароль?<a href="{% url 'customer:password_reset' %}">Сброить пароль</a></p>
         </form>
+        <div class="social">
+            <ul>
+                <li class="facebook">
+                    <a href="{% url 'social:begin' 'vk-oauth2' %}">
+                        Войти вконтакте
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 {% endblock %}
