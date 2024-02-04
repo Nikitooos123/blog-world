@@ -45,7 +45,11 @@
     <div>
         {% for post in posts %}
             <div class="div-post">
-                <h1><p class="username-post">{{ user.username }}</p><p class="title-post"><a href="{% url 'blog:post_detail' post.id %}">{{ post.title }}</a></p></h1>
+                {% if request.user.username in post.user.username %}
+                    <a href="{% url 'blog:post_edit' post.id %}">Редактировать</a>
+                    <a href="{% url 'blog:delete' post.id %}">Удалить</a>
+                {% endif %}
+                <h1><p class="username-post">{{ post.user.username }}</p><p class="title-post"><a href="{% url 'blog:post_detail' post.id %}">{{ post.title }}</a></p></h1>
                 {% if post.image %}
                     <img class="img-post" src="{{ post.image.url }}">
                 {% endif %}
@@ -55,55 +59,9 @@
                         {% csrf_token %}
                         <p class="likes-post"><button class="like" type="submit" name="pk" data-post-id="{{ post.id }}">Нравится</button> -
                             <span id="{{ post.id }}">{{ post.likes.count }}</span></p>
-
                     </form>
                 </div>
             </div>
         {% endfor %}
     </div>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('.like').click(function (event) {
-                event.preventDefault();
-                let postId = this.getAttribute('data-post-id');
-                $.ajax({
-                    url: '/like/',
-                    type: 'POST',
-                    data: {'id': postId, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
-                    dataType: 'json',
-                    success: function(response) {
-                        $('#' + postId).html(response['likes_count']);
-                        console.log('Запрос выполнен успешно');
-                        console.log(response['likes_count']);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Ошибка запроса');
-                        console.error(error);
-                    }
-                });
-            });
-        });
-        $(document).ready(function () {
-            $('.subscript').click(function (event) {
-                event.preventDefault();
-                let postId = this.getAttribute('data-post-id');
-                $.ajax({
-                    url: '/subscription/',
-                    type: 'POST',
-                    data: {'id': postId, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
-                    dataType: 'json',
-                    success: function(response) {
-                        $('#' + postId).html(response['sub']);
-                        console.log('Запрос выполнен успешно');
-                        console.log(response['sub']);
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('Ошибка запроса');
-                        console.error(error);
-                    }
-                });
-            });
-        });
-    </script>
 {% endblock %}

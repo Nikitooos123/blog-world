@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .forms import PostForm, CommentForm
@@ -10,6 +11,27 @@ from django.core.cache import cache
 from customer.models import Profile
 
 logger = logging.getLogger(__name__)
+
+''' Представление редактирования поста '''
+@login_required
+def post_edit(request, id):
+    post = get_object_or_404(UserPost, pk=id)
+    if request.method == 'POST':
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            form.save()
+            return redirect(request.POST['return_to'])
+    else:
+        form = PostForm(instance=post)
+    return render(request, 'blog/post_edit.html', {'form': form, 'post': post})
+
+
+''' Представление удаления поста '''
+@login_required
+def post_delete(request, id):
+    post = UserPost.objects.get(id=id)
+    post.delete()
+    return redirect(request.META.get('HTTP_REFERER'))
 
 
 ''' Представление комментариев '''

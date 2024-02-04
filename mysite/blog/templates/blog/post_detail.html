@@ -36,4 +36,29 @@
             <h1 class="body-comment">{{ comments.body }}</h1>
         {% endfor %}
     </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.edit_post').click(function (event) {
+                event.preventDefault();
+                let postId = this.getAttribute('data-post-id');
+                $.ajax({
+                    url: '/edit{{ post.id }}/',
+                    type: 'POST',
+                    data: {'id': {{ post.id }}, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                    dataType: 'json',
+                    success: function(response) {
+                        $('#' + title + postId).html(response['form']['title']);
+                        $('#' + body + postId).html(response['form']['body']);
+                        console.log('Запрос выполнен успешно');
+                        console.log(response['title']);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ошибка запроса');
+                        console.error(error);
+                    }
+                });
+            });
+        });
+    </script>
 {% endblock %}
