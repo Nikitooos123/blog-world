@@ -22,7 +22,7 @@
                 {{ request.user.username|default:request.user.username }}
                 <form action="{% url 'customer:logout' %}" method="POST">
                     {% csrf_token %}
-                    <a type="submit">Выход</a>
+                    <button type="submit">Выход</button>
                 </form>
             {% else %}
                 <a href="{% url 'customer:login' %}">Вход</a>
@@ -33,5 +33,50 @@
         {% block content %}
         {% endblock %}
     </div>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('.like').click(function (event) {
+                event.preventDefault();
+                let postId = this.getAttribute('data-post-id');
+                $.ajax({
+                    url: '/like/',
+                    type: 'POST',
+                    data: {'id': postId, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                    dataType: 'json',
+                    success: function(response) {
+                        $('#' + postId).html(response['likes_count']);
+                        console.log('Запрос выполнен успешно');
+                        console.log(response['likes_count']);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Ошибка запроса');
+                        console.error(error);
+                    }
+                });
+            });
+            });
+            $(document).ready(function () {
+                $('.subscript').click(function (event) {
+                    event.preventDefault();
+                    let postId = this.getAttribute('data-post-id');
+                    $.ajax({
+                        url: '/subscription/',
+                        type: 'POST',
+                        data: {'id': postId, 'csrfmiddlewaretoken': '{{ csrf_token }}'},
+                        dataType: 'json',
+                        success: function(response) {
+                            $('#' + postId).html(response['sub']);
+                            console.log('Запрос выполнен успешно');
+                            console.log(response['sub']);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Ошибка запроса');
+                            console.error(error);
+                        }
+                    });
+                });
+            });
+    </script>
 </body>
 </html>
