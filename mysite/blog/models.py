@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
-
+from django.urls import reverse
 
 
 ''' Модель поста '''
@@ -9,7 +9,7 @@ from django.utils.text import slugify
 class UserPost(models.Model):
     title = models.CharField(max_length=250)
     slug = slugify(title)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='posts', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     body = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     image = models.ImageField(upload_to='post/%Y/%m/%d/', blank=True, null=True)
@@ -24,6 +24,9 @@ class UserPost(models.Model):
 
     def __str__(self):
         return self.title
+
+    def detail_absolute_url(self):
+        return reverse('blog:post_detail', args=[self.user.id, self.id])
 
 
 ''' Модель комментариев '''

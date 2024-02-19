@@ -21,7 +21,7 @@
     </div>
     <div class="detail-post">
         <h2>Коментарии:{{ comment.objects.count }}</h2>
-        <form method="post" action="{% url 'blog:post_detail' post.id %}">
+        <form method="post" action="{ post.detail_absolute_url }}">
             {% csrf_token %}
             {{ form.as_p }}
             <p><input type="submit" value="Отправить"></p>

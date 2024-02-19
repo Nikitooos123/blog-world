@@ -13,7 +13,7 @@
             <h1>
                 <p class="username-post"><a href="{% url 'blog:profiles' post.user.id %}">{{ post.user }}</a></p>
                 <p class="time-post">{{ post.created }}</p>
-                <p class="title-post"><a href="{% url 'blog:post_detail' post.id %}">{{ post.title }}</a></p>
+                <p class="title-post"><a href="{{ post.detail_absolute_url }}">{{ post.title }}</a></p>
 
             </h1>
             {% if post.image %}

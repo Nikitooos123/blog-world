@@ -34,7 +34,7 @@
         {% endfor %}
     </div>
     {% if request.user.username in user.username %}
-        <form class="submit-form" method="post" action="{% url 'blog:profiles' user.id %}">
+        <form class="submit-form" method="post" action="{% url 'blog:profiles' user.id %}" enctype="multipart/form-data">
             {{ form.title }}
             {{ form.body }}
             {{ form.image }}
@@ -49,7 +49,11 @@
                     <a href="{% url 'blog:post_edit' post.id %}">Редактировать</a>
                     <a href="{% url 'blog:delete' post.id %}">Удалить</a>
                 {% endif %}
-                <h1><p class="username-post">{{ post.user.username }}</p><p class="title-post"><a href="{% url 'blog:post_detail' post.id %}">{{ post.title }}</a></p></h1>
+                <h1>
+                    <p class="username-post">{{ post.user.username }}</p>
+                    <input type="hidden" name="user"  value="{{ post.user.id }}">
+                    <p class="title-post"><a href="{{ post.detail_absolute_url }}">{{ post.title }}</a></p>
+                </h1>
                 {% if post.image %}
                     <img class="img-post" src="{{ post.image.url }}">
                 {% endif %}

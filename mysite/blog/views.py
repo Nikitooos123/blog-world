@@ -1,117 +1,58 @@
-from django.shortcuts import render, redirect, get_object_or_404
-
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .forms import PostForm, CommentForm
-from .models import UserPost, CommentPost
-from django.views.decorators.http import require_POST
-from django.contrib.auth.models import User
 import logging
-from django.core.cache import cache
-from customer.models import Profile
+from .services import post_query_database, save_coment_post, list_coments_post, likes_processing, \
+    enquiry_posts_list, enquiry_user_profile, save_post, cache_posts_database, form_edit_post
 
 logger = logging.getLogger(__name__)
 
 ''' Представление редактирования поста '''
 @login_required
 def post_edit(request, id):
-    post = get_object_or_404(UserPost, pk=id)
+    post = post_query_database(post_id=id, user_id=request.user.id)
+    form = form_edit_post(request, post)
     if request.method == 'POST':
-        form = PostForm(request.POST, instance=post)
-        if form.is_valid():
-            form.save()
-            return redirect(request.POST['return_to'])
-    else:
-        form = PostForm(instance=post)
-    return render(request, 'blog/post_edit.html', {'form': form, 'post': post})
-
+        return redirect(request.POST['return_to'])
+    data = {'form': form}
+    return render(request, 'blog/post_edit.html', data)
 
 ''' Представление удаления поста '''
 @login_required
 def post_delete(request, id):
-    post = UserPost.objects.get(id=id)
+    post = post_query_database(post_id=id, user_id=request.user.id)
     post.delete()
+    cache_posts_database(request.user.id)
     return redirect(request.META.get('HTTP_REFERER'))
 
 
-''' Представление комментариев '''
-
-@require_POST
-def comments(request, post_id):
-    post = get_object_or_404(PostForm, id=post_id)
-    comment = None
-    form = CommentForm(request.POST)
-    if form.is_valid():
-        comment = form.save(commit=False)
-        comment.post = post
-        comment.user = request.user
-    logger.info(('Комментарии', post, form, comment))
-    return render(request, 'blog/comment_post.html', {'post': post, 'form': form, 'comment': comment})
-
-
-''' Обработчик лайков поста '''
+''' Представление лайков поста '''
 
 def like(request):
-    post = get_object_or_404(UserPost, pk=request.POST.get('id'))
-    if request.user in post.likes.all():
-        post.likes.remove(request.user)
-        liked = False
-    else:
-        post.likes.add(request.user)
-        liked = True
-    post.save()
-    data = {'likes_count': post.likes.count()}
-    logger.info(('лайк', data))
+    data = likes_processing(id=request.POST.get('id'), user=request.user)
     return JsonResponse(data)
 
 
 ''' Детальное представление поста '''
 
 @login_required
-def post_detail(request, id):
-
-    post_cache = cache.get(f'post{id}')
-    if post_cache:
-        post = post_cache
-        comment = CommentPost.objects.filter(post=id)
-        logger.info(comment)
-    else:
-        post = get_object_or_404(UserPost, id=id)
-        comment = CommentPost.objects.filter(post=id)
-        logger.info(comment)
-        cache.set(f'post{id}', post, 100)
+def post_detail(request, user, id):
+    post = post_query_database(user_id=user, post_id=id)
+    form = save_coment_post(request, post)
     if request.method == 'POST':
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            cd = form.cleaned_data
-            comment_form = form.save(commit=False)
-            comment_form.post = post
-            comment_form.user = request.user
-            comment_form.save()
-    else:
-        form = CommentForm(request.GET)
-    # logger.info(('Детальная страница поста', post, form, comment))
-    return render(request, 'blog/post_detail.html', {'post': post, 'form': form, 'comment': comment})
+            return redirect(f'/post:{id}')
+    data = {'post': post, 'form': form, 'comment': list_coments_post(post_id=id)}
+    return render(request, 'blog/post_detail.html', data)
 
 
 ''' Представление профиля пользователя '''
 
 @login_required
 def profiles(request, id):
-    users = User.objects.filter(id=id)[0]
-    profiles = get_object_or_404(Profile, user=id)
-    posts = UserPost.objects.filter(user=id)
+    users, profiles = enquiry_user_profile(user_id=id)
+    posts = enquiry_posts_list(user_id=id)
+    form = save_post(request)
     if request.method == 'POST':
-        form = PostForm(request.POST)
-        if form.is_valid():
-            cd = form.cleaned_data
-            form_post = form.save(commit=False)
-            form_post.user = request.user
-            form_post.save()
-            return redirect(f'/user={id}')
-    else:
-        form = PostForm(request.GET)
-    logger.info(('Главная страница пользователя', users, profiles, form, posts))
+        return redirect(f'/user={id}')
     return render(request, 'blog/profiles.html', {'user': users, 'profiles': profiles, 'form': form, 'posts': posts})
-
 
