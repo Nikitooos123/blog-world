@@ -47,20 +47,31 @@ def edit(request):
 
 @login_required
 def news(request):
-    post_cache = cache.get(f'news{request.user}')
-    if post_cache:
-        post = post_cache
-        logger.info(('взято из кэша', post_cache))
-    else:
-        post = list(UserPost.objects.all())
-        subscrib = request.user.subscriptions.all()
-        for posts in post:
-            if posts.user.profile in subscrib:
-                post.remove(posts)
-                post.insert(0, posts)
-        post_cache = cache.set(f'news{request.user}', post, 100)
-        logger.info('загружено в кэш')
-    return render(request, 'account/news.html', {'section': 'news', 'post_all': post})
+    posts = donwloads_posts_in_cache(request.user)
+    return render(request, 'account/news.html', {'section': 'news', 'post_all': posts})
+
+
+
+def donwloads_posts_in_cache(user) -> UserPost:
+    """ Загрузка списка постов из кэша """
+
+    posts = cache.get(f'news{user}')
+    if not posts:
+        donwloads_database_posts_in_cache(user)
+        posts = cache.get(f'news{user}')
+    return posts
+def donwloads_database_posts_in_cache(user):
+    """ Загрузка постов из базы данных и сортировка по подписки пользователя на автора  """
+    """ С последующим сохранением списка в кэш """
+
+    posts = list(UserPost.objects.all())
+    subscrib = user.subscriptions.all()
+    for post in posts:
+        if post.user.profile in subscrib:
+            posts.remove(post)
+            posts.insert(0, post)
+    cache.set(f'news{user}', posts, 100)
+
 
 ''' Представление формы регистрации '''
 

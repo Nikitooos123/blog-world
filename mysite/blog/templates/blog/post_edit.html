@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <form class="submit-form" method="post" enctype="multipart/form-data">
+        {{ form.title }}
+        {{ form.body }}
+        {{ form.image }}
+        {% csrf_token %}
+        <input type="hidden" name="return_to"  value="{{ request.META.HTTP_REFERER }}">
+        <p><input style="margin-left: 4%;" type="submit" value="Отправить"></p>
+    </form>
+{% endblock %}
