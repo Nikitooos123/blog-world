@@ -113,7 +113,7 @@ def form_edit_post(request, post: UserPost) -> [PostForm, None]:
 
 def likes_processing(id: int, user: UserPost) -> dict:
     """ Обработка нажатия на кнопку лайка """
-    post = post_query_database(user.id, id)
+    post = UserPost.objects.get(id=id)
     if user in post.likes.all():
         post.likes.remove(user)
         liked = False
